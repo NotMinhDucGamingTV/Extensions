@@ -883,3 +883,23 @@ function Proxmox_configure(Request $request, OrderProduct $product)
     if (!$config->json()) throw new Exception('Unable to configure server');
     return redirect()->back()->with('success', 'Server has been configured successfully');
 }
+function Proxmox_launchterm(Request $request, OrderProduct $product)
+{
+    if (!ExtensionHelper::hasAccess($product,  $request->user())) throw new Exception('You do not have access to this server');
+    $request->validate([
+        'hostname' => ['required', 'string', 'max:255'],
+    ]);
+    $data = ExtensionHelper::getParameters($product);
+
+    $params = $data->config;
+    $vmid = $params['config']['vmid'];
+    $vmType = $params['type'];
+
+    $postData = [
+        'hostname' => $request->hostname,
+    ];
+    $config = Proxmox_putRequest('/nodes/' . $params['node'] . '/' . $vmType . '/' . $vmid . '/config',  $postData);
+
+    if (!$config->json()) throw new Exception('Unable to configure server');
+    return redirect()->back()->with('success', 'Server has been configured successfully');
+}
