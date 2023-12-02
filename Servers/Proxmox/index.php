@@ -298,7 +298,24 @@ function Proxmox_getProductConfig($options)
             'friendlyName' => 'Swap (MB)',
             'description' => 'The amount of swap of the wanted VM',
         ],
-
+        [
+            'name' => 'ip_addrv4',
+            'type' => 'text',
+            'friendlyName' => 'IP address (v4) / CIDR',
+            'description' => 'The network IP address of the wanted VM',
+        ],
+        [
+            'name' => 'gatewayipv4',
+            'type' => 'text',
+            'friendlyName' => 'Gateway Address (IPv4)',
+            'description' => 'The gateway IP address of the wanted VM',
+        ],
+        [
+            'name' => 'dhcpv4',
+            'type' => 'boolean',
+            'friendlyName' => 'DHCP (v4)',
+            'description' => 'Enable/disable DHCP',
+        ],
         [
             'type' => 'title',
             'friendlyName' => 'QEMU',
@@ -695,7 +712,7 @@ function Proxmox_createServer($user, $parmas, $order, $product, $configurableOpt
             'hostname' => $parmas['config']['hostname'],
             'password' => $parmas['config']['password'],
             'swap' => $swap ?? 512,
-            'net0' => 'name=test' . ',bridge=' . $parmas['bridge'] . ',' . (isset($parmas['firewall']) ? 'firewall=1' : 'firewall=0') . (isset($network_limit) ? ',rate=' . $network_limit : ''),
+            'net0' => 'name=test' . ',bridge=' . $parmas['bridge'] . ',' . (isset($dhcpv4) ? ',ip=' . 'dhcp' : $ip_addrv4 . ',gw=' . $gatewayipv4) . ',' . (isset($parmas['firewall']) ? 'firewall=1' : 'firewall=0') . (isset($network_limit) ? ',rate=' . $network_limit : ''),
         ];
         isset($pool) ? $postData['pool'] = $pool : null;
         $response = Proxmox_postRequest('/nodes/' . $node . '/lxc', $postData);
